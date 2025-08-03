@@ -1,8 +1,9 @@
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/631bf0d3-8987-455d-afbe-b0d1b7852059" /># 🥤 Shake Maker ML - AI-Powered Beverage Game
+# 🥤 Shake Maker ML - AI-Powered Beverage Game
 
 *A retro-inspired shake crafting game powered by neural networks and wrapped in warm, pastel café aesthetics*
 
-![Game Preview]<img width="1600" height="900" alt="image" src="https://github.com/user-attachments/assets/1e230e92-2a73-48bf-a407-ac709cf99398" />
+## Game Preview 
+<img width="1600" height="900" alt="image" src="https://github.com/user-attachments/assets/1e230e92-2a73-48bf-a407-ac709cf99398" />
 <img width="1600" height="900" alt="image" src="https://github.com/user-attachments/assets/49550d44-b1f8-4566-beab-105073653dff" />
 <img width="1600" height="900" alt="image" src="https://github.com/user-attachments/assets/fa1d6001-2f52-4174-974a-736d9f6e94b7" />
 <img width="1600" height="886" alt="image" src="https://github.com/user-attachments/assets/f6cb083f-17f8-46b4-aab2-2b71f3dfbf96" />
@@ -55,7 +56,7 @@ Inspired by classic café aesthetics and the nostalgia of simple yet engaging br
 
 ## 🧪 The Machine Learning Magic
 
-### 🧪 Predictor Model
+### Predictor Model
 
 - **Input Layer**: 42 neurons
 - **Hidden Layers**: 128 → 64 → 32 (ReLU + Dropout)
@@ -66,8 +67,8 @@ Inspired by classic café aesthetics and the nostalgia of simple yet engaging br
 ## Design Philosophy
 Our design philosophy is rooted in creating a user experience that is both intuitive and rewarding. We've focused on four key principles:
 
-- **Progressive Disclosure**: We believe in unlocking features progressively. This approach prevents users from feeling overwhelmed and allows them to master core functionalities before exploring more advanced options.
+- **Progressive Disclosure**: Believing in unlocking features progressively. This approach prevents users from feeling overwhelmed and allows them to master core functionalities before exploring more advanced options.
 -  **Immediate Feedback**: Every interaction is met with an immediate visual or audio reaction. This constant feedback loop ensures users always know the result of their actions, making the experience feel responsive and satisfying.
--  **Guided Discovery**: Our **AI Chef** acts as a guide, helping users explore new combinations and possibilities. This feature encourages experimentation and creative freedom without the frustration of not knowing where to start.
+-  **Guided Discovery**: My **AI Chef** acts as a guide, helping users explore new combinations and possibilities. This feature encourages experimentation and creative freedom without the frustration of not knowing where to start.
 -  **Celebration**: High-scoring shakes are a cause for celebration! We reward user success with fun, celebratory animations like confetti and cheers, making achievements feel special and encouraging continued engagement.
 
