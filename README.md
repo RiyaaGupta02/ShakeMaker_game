@@ -1,4 +1,4 @@
-# 🥤 Shake Maker ML - AI-Powered Beverage Game
+# 🥤 Shake Maker ML - Neural Network Based Beverage Game
 
 *A retro-inspired shake crafting game powered by neural networks and wrapped in warm, pastel café aesthetics*
 
