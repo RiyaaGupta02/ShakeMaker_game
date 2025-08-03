@@ -1,0 +1,1343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shake Maker Game</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    .background-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+
+    .background-img {
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      filter: blur(0px);
+      transition: filter 0.5s ease;
+    }
+
+    .background-blur {
+      filter: blur(10px);
+    }
+
+    .home-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -1%);
+      margin-top: 40px;
+      transition: all 0.5s ease;
+      z-index: 10;
+    }
+
+    .home-container.hidden {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.8);
+      pointer-events: none;
+    }
+
+    .fullscreen-toggle {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      padding: 10px 20px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(45deg, #da71b2, #b75688);
+      color: rgb(237, 228, 234);
+      cursor: pointer;
+      z-index: 1000;
+      opacity: 0.8;
+      transition: all 0.3s ease;
+    }
+
+.fullscreen-toggle:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+}
+
+
+    .game-card {
+      background: rgba(239, 172, 193, 0.893);
+      backdrop-filter: blur(40px);
+      border-radius: 20px;
+      padding: 3rem;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      opacity: 0.9;
+      }
+
+    .game-title {
+      font-size: 3rem;
+      font-weight: 700;
+      color: #5b1231;
+      margin-bottom: 1rem;
+      text-shadow: 2px 2px 4px rgba(67, 18, 39, 0.221);
+    }
+
+    .game-subtitle {
+      font-size: 1.2rem;
+      color: #a40957;
+      margin-bottom: 2rem;
+      font-weight: 400;
+    }
+
+    .start-button {
+      background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+      color: white;
+      border: none;
+      padding: 1rem 2rem;
+      font-size: 1.1rem;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 600;
+      box-shadow: 0 10px 20px rgba(255, 107, 107, 0.3);
+    }
+
+    .start-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 25px rgba(255, 107, 107, 0.4);
+    }
+
+    .game-screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      background: rgba(168, 114, 125, 0.604);           /* this is just the perfect color keep as it is hi */
+      backdrop-filter: blur(10px);
+      display: flex;
+      flex-direction: column;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.5s ease;
+      z-index: 20;
+    }
+
+    .game-screen.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .top-dashboard {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background: rgba(168, 114, 125, 0.604);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .category-selector {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .category-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 500;
+    }
+
+    .category-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .category-btn.active {
+      background: rgba(255, 107, 107, 0.8);
+      border-color: rgba(255, 107, 107, 1);
+    }
+
+    .game-actions {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .close-btn, .reset-button {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .close-btn:hover, .reset-button:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .main-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1.5rem;
+      min-height: 100vh; /* Add this to take full viewport height */
+      padding: 2rem; /* Add some padding from edges */
+    }
+
+    /* the main Choose Ingredients button thats being used to select ingredients for shake making */
+    .ingredient-selector {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      padding: 2.5rem 4rem;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.8s ease;
+      font-size: 1.6rem;
+      font-weight: 600;
+      text-align: center;
+      width: 100%;
+      max-width: 400px; /* Control max width */
+    }
+
+    .ingredient-selector:hover {
+      transform: scale(1.05);
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .ingredient-selector.expand {
+      transform: scale(20);
+      opacity: 0;
+    }
+
+    .ingredient-selector.hidden {
+      display: none;
+    }
+
+                  /* CAFE SUGGESTION ---> GAME FEATURE CSS below in small patch adding that */
+    /* Adding in the new CSS for the generative model that we made ---> helping it to make AI based shakes trained on 1500 shakes that we did let it make to know what kind of shake to make
+    So here now making the CSS for the cafe suggestions thats basically ---> for cafe suggestion page that works with shake_generator model */
+    /* Cafe Suggestion - Smaller Box Below */
+     .cafe-suggestion {
+  background: rgba(255, 255, 255, 0.08); /* Slightly more transparent */
+  backdrop-filter: blur(15px);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  color: white;
+  padding: 1rem 2rem; /* Smaller padding */
+  border-radius: 15px; /* Slightly smaller border radius */
+  cursor: pointer;
+  transition: all 0.8s ease;
+  font-size: 1.1rem; /* Smaller font */
+  font-weight: 500; /* Less bold */
+  text-align: center;
+  width: 100%;
+  max-width: 280px; /* Smaller max width */
+  margin: 0; /* Remove margin-left */
+}
+
+.cafe-suggestion:hover {
+  transform: scale(1.05);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.cafe-suggestion.hidden {
+  display: none;
+}
+
+.suggestion-screen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: rgba(168, 114, 125, 0.604);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.5s ease;
+  z-index: 25;
+}
+
+.suggestion-screen.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.suggestion-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  padding: 3rem;
+  text-align: center;
+  color: white;
+  max-width: 600px;
+}
+
+.suggestion-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #fff;
+}
+
+.suggestion-subtitle {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+  color: #eee;
+}
+
+.suggestion-options {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.suggestion-option {
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 1rem 2rem;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.suggestion-option:hover {
+  background: rgba(255, 107, 107, 0.3);
+  border-color: rgba(255, 107, 107, 1);
+  transform: translateY(-2px);
+}
+
+.back-to-game-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 0.8rem 1.5rem;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* Back to our main game where user adding ingredients to make shake ---> Main game logic --> thats predicting shake taste back to that main
+Games logic CSS */
+            /*   CAFE SUGGESTION FEATURE CSS ---> ENDS HERE   */
+
+    .ingredients-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 1rem;
+      max-width: 800px;
+      opacity: 0;
+      transform: scale(0.8);
+      transition: all 0.5s ease;
+    }
+
+    .ingredients-grid.visible {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .ingredient-item {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 15px;
+      padding: 1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      color: white;
+    }
+
+    .ingredient-item:hover {
+      transform: translateY(-5px);
+      background: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .ingredient-item.selected {
+      background: rgba(255, 107, 107, 0.3);
+      border-color: rgba(255, 107, 107, 1);
+    }
+
+    .ingredient-icon {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .ingredient-name {
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .right-dashboard {
+      position: absolute;
+      right: 2rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(155, 62, 109, 0.1);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      padding: 1.5rem;
+      width: 300px;
+      color: white;
+    }
+
+    .selected-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    .selected-list {
+      max-height: 200px;
+      overflow-y: auto;
+      margin-bottom: 1rem;
+    }
+
+    .selected-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem;
+      background: rgba(155, 66, 103, 0.303);
+      border-radius: 10px;
+      margin-bottom: 0.5rem;
+    }
+
+    .remove-btn {
+      background: rgba(255, 107, 107, 0.6);
+      border: none;
+      color: white;
+      padding: 0.3rem 0.5rem;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .remove-btn:hover {
+      background: rgba(255, 107, 107, 0.8);
+    }
+
+    .make-shake-btn {
+      width: 100%;
+      background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+      color: white;
+      border: none;
+      padding: 1rem;
+      font-size: 1.1rem;
+      border-radius: 15px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 600;
+    }
+
+    .make-shake-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(255, 107, 107, 0.3);
+    }
+
+    .make-shake-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .results-screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      background: rgba(168, 114, 125, 0.604);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.5s ease;
+      z-index: 30;
+    }
+
+    .results-screen.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .results-card {
+      background: rgba(168, 114, 125, 0.604);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(101, 44, 76, 0.2);
+      border-radius: 20px;
+      padding: 3rem;
+      text-align: center;
+      color: white;
+      max-width: 400px;
+    }
+
+    .shake-result {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+    }
+
+    .taste-score {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: #f1dede;
+    }
+
+    .taste-feedback {
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
+      color: #eee1e9;
+    }
+
+    .shake-recommendation {
+      font-size: 0.9rem;
+      margin-bottom: 2rem;
+      color: #e6daec;
+      font-style: italic;
+    }
+
+    /* bubble animation thats being showing in the results screen for shake prediction comes from here --> main bubble animation */
+    /* Add this to your existing CSS file */
+    .bubble-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      z-index: -1; /* Make sure it's behind the results card */
+      pointer-events: none;
+    }
+
+    .bubble-container span {
+      position: absolute;
+      bottom: -100px;
+      border-radius: 50%;
+      width: 40px; /* default fallback size */
+      height: 40px;
+      background: radial-gradient(
+    circle at 30% 30%,
+    rgba(255, 255, 255, 0.7),   /* white shine highlight */
+    rgba(255, 182, 193, 0.6),
+    rgba(219, 112, 147, 0.3)
+  );
+      box-shadow:
+    0 0 12px rgba(255, 182, 193, 0.5),
+    inset -4px -4px 8px rgba(255, 255, 255, 0.4); /* subtle inner shine */
+    backdrop-filter: blur(2px);
+    animation: bubble-animation 10s linear infinite;
+    opacity: 0.95; /* previously 0.8 – more visible now */
+}
+
+
+    /* Keyframes for the bubble animation */
+    @keyframes bubble-animation {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+    transform: translateY(-20vh) scale(1.1);
+  }
+  50% {
+    transform: translateY(-50vh) scale(1.2);
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100vh) scale(1.3);
+    opacity: 0;
+  }
+}
+
+    .try-again-btn {
+      background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+      color: white;
+      border: none;
+      padding: 1rem 2rem;
+      font-size: 1.1rem;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 600;
+    }
+
+    .try-again-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(255, 107, 107, 0.3);
+    }
+  </style>
+</head>
+<body>
+  <!-- Background Image -->
+  <div class="background-container">
+    <div class="background-img" id="backgroundImg" style="background-image: url('Bg_ShakeMaker.jpg'); background-size: cover; background-position: center;"></div>
+  </div>
+  <!-- toggle button to make game full screen if u want n then back into browser -->
+  <button id="fullscreenBtn" class="fullscreen-toggle">🔳 Fullscreen</button>
+  <!-- Home Screen -->
+  <div class="home-container" id="homeContainer">
+    <div class="game-card">
+      <h1 class="game-title">🥤 Shake Maker</h1>
+      <p class="game-subtitle">Create amazing shakes with ML taste predictor!!</p>
+      <button class="start-button" onclick="startGame()">
+        <i class="fas fa-play"></i> Lets Make a Shake!
+      </button>
+    </div>
+  </div>
+
+  <!-- Game Screen -->
+  <div class="game-screen" id="gameScreen">
+    <!-- Top Dashboard -->
+    <div class="top-dashboard">
+      <div class="category-selector">
+        <button class="category-btn active" onclick="selectCategory('fruits')">🍎 Fruits</button>
+        <button class="category-btn" onclick="selectCategory('vegetables')">🥬 Vegetables</button>
+        <button class="category-btn" onclick="selectCategory('cakes')">🍰 Cakes</button>
+        <button class="category-btn" onclick="selectCategory('syrups')">🍯 Syrups</button>
+      </div>
+      <div class="game-actions">
+        <button class="close-btn" onclick="closeGame()">
+          <i class="fas fa-times"></i> Close Game
+        </button>
+        <button class="reset-button" onclick="resetGame()">
+          <i class="fas fa-undo"></i> Reset Game
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Area -->
+     <!-- this is the MAIN structure of the game that sets the bases for main game logic can start from here-->
+    <div class="main-area">
+      <div class="ingredient-selector" id="ingredientSelector" onclick="expandSelector()">
+        <div>Choose Ingredients</div>
+      </div>
+
+      <!-- adding in this main BASE setup one more thing thats CAFE suggestion -->
+      <div class="cafe-suggestion" id="cafeSuggestion" onclick="openCafeSuggestion()">
+        <div>👨‍🍳 Let the Cafe Suggest!</div>
+      </div>
+      <!-- Ingredients Grid back to main logic & base game -->
+      <div class="ingredients-grid" id="ingredientsGrid">
+        <!-- Dynamic ingredients will be populated here -->
+      </div>
+    </div>
+
+    <!-- Right Dashboard -->
+    <div class="right-dashboard">
+      <div class="selected-ingredients">
+        <h3 class="selected-title">Selected Ingredients</h3>
+        <div class="selected-list" id="selectedList">
+          <div style="color: #eedde8; font-style: italic;">No ingredients selected</div>
+        </div>
+      </div>
+      <button class="make-shake-btn" id="makeShakeBtn" onclick="makeShake()" disabled>
+        <i class="fas fa-magic"></i> Make Shake
+      </button>
+    </div>
+  </div>
+
+  <!-- Results Screen -->
+  <div class="results-screen" id="resultsScreen">
+    <div class="bubble-container"></div>     <!-- This is for the bubble effect adding it bfor result card cos its in bg of result card but also not disturbing the bg pic of r game & its the container bubble animation will work on-->
+    <!-- bubble animation that will be made main animation work for it see in CSS file -->
+    <div class="results-card">
+      <div class="shake-result" id="shakeEmoji">🥤</div>
+      <div class="taste-score" id="tasteScore">Calculating...</div>
+      <div class="taste-feedback" id="tasteFeedback">Processing your shake...</div>
+      <div class="shake-recommendation" id="shakeRecommendation"></div>
+      <button class="try-again-btn" onclick="tryAgain()">
+        <i class="fas fa-redo"></i> Try Again
+      </button>
+    </div>
+  </div>
+
+
+  <!-- Adding here the side game feature based on working of our Generative Model thats Let the Cafe Suggest -->
+   <!-- Suggestion Screen (Add after Results Screen) -->
+    <!-- Adding this html base layer at end of main base game skeleton -->
+<div class="suggestion-screen" id="suggestionScreen">
+  <div class="suggestion-card">
+    <h2 class="suggestion-title">👨‍🍳 Chef's Special Recommendations</h2>
+    <p class="suggestion-subtitle">What kind of shake would you like today?</p>
+    
+    <div class="suggestion-options">
+      <div class="suggestion-option" onclick="generateShake('fruity')">
+        🍓 A Fruity Healthy Shake
+        <div style="font-size: 0.9rem; color: #ddd; margin-top: 0.5rem;">
+          Fresh fruits with natural sweetness & vitamins
+        </div>
+      </div>
+      
+      <div class="suggestion-option" onclick="generateShake('veggie')">
+        🥬 A Veggie Nutritional Smoothie
+        <div style="font-size: 0.9rem; color: #ddd; margin-top: 0.5rem;">
+          Packed with greens & nutrients for wellness
+        </div>
+      </div>
+      
+      <div class="suggestion-option" onclick="generateShake('dessert')">
+        🍰 A Fruity & Cakey Delicious Shake
+        <div style="font-size: 0.9rem; color: #ddd; margin-top: 0.5rem;">
+          Sweet indulgent treat with cake flavors
+        </div>
+      </div>
+    </div>
+    
+    <button class="back-to-game-btn" onclick="backToGame()">
+      ← Back to Main Screen for Choosing my own Ingredients to make a Shake 🥤
+    </button>
+  </div>
+</div>
+  
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+  <script>
+    // Fullscreen functionality
+    // Toggle Fullscreen on click
+    const fullscreenBtn = document.getElementById("fullscreenBtn");
+    
+    fullscreenBtn.addEventListener("click", () => {
+      if (!document.fullscreenElement) {
+    // Enter fullscreen
+    document.documentElement.requestFullscreen().catch(err => {
+      console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+    });
+    fullscreenBtn.textContent = "❎ Exit Fullscreen";
+  } else {
+    // Exit fullscreen
+    document.exitFullscreen();
+    fullscreenBtn.textContent = "🔳 Fullscreen";
+  }
+});
+
+// sound effects building up 
+    // === Sound Effects ===
+    const clickSound = new Audio('./audio/Button_Click.mp3');
+    clickSound.onerror = () => console.log('Click sound not found');
+
+    const bubbleSound = new Audio('./audio/Bubble_pop.mp3');
+    bubbleSound.onerror = () => console.log('Bubble sound not found');
+
+    const resultSound = new Audio('./audio/Shake_result_sound.wav');
+    resultSound.onerror = () => console.log('Result sound not found');
+
+// initialize game state
+    // Game state
+    let gameState = {
+      currentCategory: 'fruits',
+      selectedIngredients: [],
+      isExpanded: false,
+      model: null
+    };
+
+    // Ingredients data
+    // List of all the ingredients available in the game --> organized by category & also hv value to identify them
+const ingredientsData = {
+  fruits: [
+    { name: 'Apple', icon: '🍎', value: 'apple' },
+    { name: 'Banana', icon: '🍌', value: 'banana' },
+    { name: 'Strawberry', icon: '🍓', value: 'strawberry' },
+    { name: 'Mango', icon: '🥭', value: 'mango' },
+    { name: 'Blueberry', icon: '🍇', value: 'blueberry' },
+    { name: 'Pineapple', icon: '🍍', value: 'pineapple' },
+    { name: 'Watermelon', icon: '🍉', value: 'watermelon' },
+    { name: 'Peach', icon: '🍑', value: 'peach' },
+    { name: 'Cherry', icon: '🍒', value: 'cherry' },
+    { name: 'Coconut', icon: '🥥', value: 'coconut' },
+    { name: 'Avocado', icon: '🥑', value: 'avocado' }
+  ],
+  vegetables: [
+    { name: 'Spinach', icon: '🥬', value: 'spinach' },
+    { name: 'Carrot', icon: '🥕', value: 'carrot' },
+    { name: 'Beetroot', icon: '🫚', value: 'beetroot' },
+    { name: 'Kale', icon: '🥬', value: 'kale' },
+    { name: 'Celery', icon: '🥬', value: 'celery' },
+    { name: 'Cauliflower', icon: '🥬', value: 'cauliflower' },
+    { name: 'Sweet Potato', icon: '🍠', value: 'sweet_potato' },
+    { name: 'Pumpkin', icon: '🎃', value: 'pumpkin' },
+    { name: 'Parsley', icon: '🌿', value: 'parsley' },
+    { name: 'Mint', icon: '🌿', value: 'mint' }
+  ],
+  cakes: [
+    { name: 'Chocolate', icon: '🍫', value: 'chocolate' },
+    { name: 'Vanilla', icon: '🍰', value: 'vanilla' },
+    { name: 'Red Velvet', icon: '❤️', value: 'red_velvet' },
+    { name: 'Cheesecake', icon: '🧀', value: 'cheesecake' },
+    { name: 'Lemon', icon: '🍋', value: 'lemon' },
+    { name: 'Strawberry Cake', icon: '🍓', value: 'strawberry_cake' },
+    { name: 'Tiramisu', icon: '☕', value: 'tiramisu' },
+    { name: 'Black Forest', icon: '🍒', value: 'black_forest' },
+    { name: 'Coconut Cake', icon: '🥥', value: 'coconut_cake' },
+  ],
+  syrups: [
+    { name: 'Honey', icon: '🍯', value: 'honey' },
+    { name: 'Maple', icon: '🍁', value: 'maple' },
+    { name: 'Chocolate', icon: '🍫', value: 'chocolate_syrup' },
+    { name: 'Caramel', icon: '🍮', value: 'caramel' },
+    { name: 'Vanilla', icon: '🤍', value: 'vanilla_syrup' },
+    { name: 'Strawberry', icon: '🍓', value: 'strawberry_syrup' }
+  ]
+};
+
+    // Initialize ML model (placeholder)
+    async function initializeModel() {
+      try {
+        console.log('ML Model initialized');
+        gameState.model = true;
+      } catch (error) {
+        console.error('Failed to load ML model:', error);
+      }
+    }
+
+    // Game functions
+    async function startGame() {
+    clickSound.play();
+    
+    // Add visual feedback for API connection
+    console.log('Checking API connection...');
+    
+    const health = await shakeAPI.checkHealth();
+    console.log('API Health:', health);
+    
+    if (health.status === 'healthy' && health.model_ready) {
+        console.log('✅ ML Model is ready!');
+        // Maybe show a green indicator to user
+    } else {
+        console.log('⚠️ ML Model not ready - using fallback predictions');
+        // Maybe show a yellow/red indicator to user
+    }
+
+    document.getElementById('homeContainer').classList.add('hidden');
+    document.getElementById('backgroundImg').classList.add('background-blur');
+    setTimeout(() => {
+        document.getElementById('gameScreen').classList.add('active');
+        initializeModel();
+    }, 300);
+}
+
+    function closeGame() {
+      clickSound.play();   // adding the click sound effect --> when closing game to that function
+      document.getElementById('gameScreen').classList.remove('active');
+      document.getElementById('backgroundImg').classList.remove('background-blur');
+      setTimeout(() => {
+        document.getElementById('homeContainer').classList.remove('hidden');
+        resetGame();
+      }, 300);
+    }
+
+    function expandSelector() {
+      const selector = document.getElementById('ingredientSelector');
+      const cafeSuggestion = document.getElementById('cafeSuggestion');
+
+      gameState.isExpanded = true;
+      selector.classList.add('expand');
+      // adding the cafe suggestion hide button
+      cafeSuggestion.classList.add('hidden');
+
+      setTimeout(() => {
+        selector.classList.add('hidden');
+        showIngredients();
+      }, 800);
+    }
+
+    function showIngredients() {
+      const grid = document.getElementById('ingredientsGrid');
+      renderIngredients();
+      grid.classList.add('visible');
+    }
+
+    function selectCategory(category) {
+      gameState.currentCategory = category;
+      
+      // Update active button
+      document.querySelectorAll('.category-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.target.classList.add('active');
+      
+      // Re-render ingredients if expanded
+      if (gameState.isExpanded) {
+        renderIngredients();
+      }
+    }
+
+    // adding here the Bubble animation for when final predictions of taste score maded an extra bubble animation for the results screen
+    // A new function to generate the bubbles
+    function generateBubbles() {
+    const bubbleContainer = document.querySelector('.bubble-container');
+    const numberOfBubbles = 20; // You can adjust this number
+
+    const pinkShades = [
+        ['rgba(255, 182, 193, 0.6)', 'rgba(219, 112, 147, 0.2)'], // Light pink to pale violet-red
+        ['rgba(255, 105, 180, 0.5)', 'rgba(199, 21, 133, 0.2)'],  // Hot pink to medium violet-red
+        ['rgba(255, 160, 180, 0.6)', 'rgba(139, 0, 0, 0.15)'],    // Pastel pink to dark red
+        ['rgba(240, 128, 128, 0.5)', 'rgba(128, 0, 64, 0.2)'],    // Light coral to deep maroon
+        ['rgba(255, 192, 203, 0.6)', 'rgba(139, 0, 139, 0.2)'],   // Pink to dark magenta
+    ];
+
+    for (let i = 0; i < numberOfBubbles; i++) {
+        const bubble = document.createElement('span');
+        const size = Math.random() * 60 + 20; // Bubble size between 20px and 80px
+        const delay = Math.random() * 5; // Delay animation to vary start times
+        const leftPosition = Math.random() * 100; // Random horizontal position
+
+        const duration = Math.random() * 10 + 10;
+
+        const gradient = pinkShades[Math.floor(Math.random() * pinkShades.length)];
+
+        bubble.style.width = `${size}px`;
+        bubble.style.height = `${size}px`;
+        bubble.style.left = `${leftPosition}%`;
+        bubble.style.animationDelay = `${delay}s`;
+        bubble.style.animationDuration = `${Math.random() * 10 + 10}s`; // Vary the speed
+        bubble.style.opacity = 0.90; // Slightly more visible
+
+        bubble.style.background = `radial-gradient(
+        circle at 30% 30%,
+        rgba(255, 255, 255, 0.7),
+        ${gradient[0]},
+        ${gradient[1]}
+        )`;
+        bubble.style.boxShadow = `0 0 10px ${gradient[0]}`;
+
+        bubbleContainer.appendChild(bubble);
+    }
+} 
+
+    // A new function to clear the bubbles
+    // this func made to clear the bubbles when the results screen is closed or reset its imp ortant to clear the bubbles before generating new ones
+    // this is to prevent multiple bubble layers stacking up --> causing delay in DOM slowing game & leading to performance issues
+        function clearBubbles() {
+          const bubbleContainer = document.querySelector('.bubble-container');
+          bubbleContainer.innerHTML = '';
+
+          // Add this line to log a message to the console
+        console.log('Bubbles cleared from the DOM.');
+        // what it does is this provides a message in console for dev to know that bubbles have been cleared
+        }
+
+    function renderIngredients() {
+      const grid = document.getElementById('ingredientsGrid');
+      const ingredients = ingredientsData[gameState.currentCategory];
+      
+      grid.innerHTML = ingredients.map(ingredient => `
+        <div class="ingredient-item ${gameState.selectedIngredients.find(item => item.value === ingredient.value) ? 'selected' : ''}" 
+             onclick="selectIngredient('${ingredient.value}', '${ingredient.name}', '${ingredient.icon}')">
+          <div class="ingredient-icon">${ingredient.icon}</div>
+          <div class="ingredient-name">${ingredient.name}</div>
+        </div>
+      `).join('');
+    }
+
+    function selectIngredient(value, name, icon) {
+      // Check if already selected  
+      // prevents duplicate selections
+      if (gameState.selectedIngredients.find(item => item.value === value)) {
+        return;
+      }
+      // adding the sound effect for when choosing all diff veges 
+      bubbleSound.play();
+      // plays the bubble sound effect when selecting an ingredient -> on all ingredients when clicked
+
+      // Add to selected ingredients
+      gameState.selectedIngredients.push({ value, name, icon });
+      updateSelectedList();
+      
+      // Update the visual state
+      renderIngredients();
+    }
+
+    function updateSelectedList() {
+      const selectedList = document.getElementById('selectedList');
+      const makeShakeBtn = document.getElementById('makeShakeBtn');
+      
+      if (gameState.selectedIngredients.length === 0) {
+        selectedList.innerHTML = '<div style="color: #999; font-style: italic;">No ingredients selected</div>';
+        makeShakeBtn.disabled = true;
+      } else {
+        selectedList.innerHTML = gameState.selectedIngredients.map(item => `
+          <div class="selected-item">
+            <span>${item.icon} ${item.name}</span>
+            <button class="remove-btn" onclick="removeIngredient('${item.value}')">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        `).join('');
+        makeShakeBtn.disabled = false;
+      }
+    }
+
+    function removeIngredient(value) {
+      gameState.selectedIngredients = gameState.selectedIngredients.filter(item => item.value !== value);
+      updateSelectedList();
+      
+      // Update the visual state
+      if (gameState.isExpanded) {
+        renderIngredients();
+      }
+    }
+
+
+
+    // Add this ShakeMakerAPI class to your existing JavaScript
+    // this is the shake maker API working on the backend
+    // This class handles API requests to the backend for shake predictions and ingredient fetching.
+  class ShakeMakerAPI {
+        constructor(baseUrl = 'http://127.0.0.1:8000') {
+          this.baseUrl = baseUrl;}
+
+    async predictShake(ingredients) {
+        try {
+            const response = await fetch(`${this.baseUrl}/predict`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    ingredients: ingredients
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('API Error:', error);
+            return this.fallbackPrediction(ingredients);
+        }
+    }
+
+    async getIngredients() {
+        try {
+            const response = await fetch(`${this.baseUrl}/ingredients`);
+            return await response.json();
+        } catch (error) {
+            console.error('Failed to fetch ingredients:', error);
+            return null;
+        }
+    }
+
+    async checkHealth() {
+        try {
+        const response = await fetch(`${this.baseUrl}/health`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        console.log('Health check successful:', result);  // Add logging
+        return result;
+    } catch (error) {
+        console.error('Health check failed:', error);
+        return { status: 'offline', model_ready: false };
+      }
+    }
+
+    // Adding in new features for the ---> Cafe Suggestion feature
+    // ✅ ADD NEW METHODS HERE:
+    // Connects to your backend's /generate endpoint --> input goes is the preferences for shake generation sweet, fruits etc --> output is the AI generated list + predictions
+    async generateShake(request) {
+        try {
+            const response = await fetch(`${this.baseUrl}/generate`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(request)
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Generation API Error:', error);
+            return this.fallbackGeneration(request);
+        }
+    }
+
+
+    // Fallback generation method if API fails
+    // This method provides a simple fallback based on predefined preferences --> Backup when backend is offline --> Core imp logics 
+    fallbackGeneration(request) {
+  // Simple fallback based on preferences
+  const fallbackCombos = {
+    fruity: ['apple', 'strawberry', 'honey'],
+    veggie: ['spinach', 'apple', 'banana'],
+    dessert: ['chocolate', 'vanilla', 'strawberry_syrup', 'banana']
+  };
+  
+  const type = request.categories?.includes('vegetables') ? 'veggie' : 
+               request.categories?.includes('cakes') ? 'dessert' : 'fruity';
+  
+  return {
+    generated_shake: fallbackCombos[type],
+    predicted_score: 0.75,
+    confidence: 0.6,
+    reasoning: "Chef's offline special - a classic combination!"
+  };
+}
+
+    fallbackPrediction(ingredients) {
+        const score = Math.random() * 0.6 + 0.2;
+        return {
+            quality_score: score,
+            feedback: "API unavailable - using local prediction",
+            emoji: score > 0.6 ? "😊" : score > 0.4 ? "😐" : "😕",
+            detailed_analysis: {
+                score_breakdown: { overall_score: Math.round(score * 100) },
+                recommendations: ["Try the full ML model by starting the backend server!"]
+            }
+        };
+    }
+}
+
+      // Initialize API client (add this line)
+      const shakeAPI = new ShakeMakerAPI();
+
+
+    // function for making the shake
+    async function makeShake() {
+    clickSound.play();
+    
+    document.getElementById('gameScreen').classList.remove('active');
+    document.getElementById('resultsScreen').classList.add('active');
+    
+    document.getElementById('shakeEmoji').textContent = '🥤';
+    document.getElementById('tasteScore').textContent = 'Analyzing with ML...';
+    document.getElementById('tasteFeedback').textContent = 'Neural network processing your shake...';
+    
+    try {
+        const ingredientValues = gameState.selectedIngredients.map(item => item.value);
+        const prediction = await shakeAPI.predictShake(ingredientValues);
+        
+        setTimeout(() => {
+            document.getElementById('shakeEmoji').textContent = prediction.emoji;
+            document.getElementById('tasteScore').textContent = `${Math.round(prediction.quality_score * 100)}%`;
+            document.getElementById('tasteFeedback').textContent = prediction.feedback;
+
+            // generate bubbles after the results appear or displayed
+            generateBubbles(); // Call the bubble generation function
+
+
+        // so here now adding new logic thats for the recommendations logic --> to show in game screen recommendations
+        // Add recommendation logic here
+            const recommendations = prediction.detailed_analysis.recommendations;
+            const recommendationText = recommendations && recommendations.length > 0 
+                ? recommendations.join('. ') // Joins multiple recommendations with a period
+                : 'No recommendations for this shake!';
+            
+            document.getElementById('shakeRecommendation').textContent = recommendationText;
+            
+            resultSound.play();
+            
+            if (prediction.quality_score > 0.7 && typeof confetti === 'function') {
+                confetti({
+                    particleCount: 150,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#6c5ce7']
+                });
+            }
+            
+            console.log('Detailed Analysis:', prediction.detailed_analysis);
+            
+        }, 2000);
+        
+    } catch (error) {
+        console.error('Shake prediction failed:', error);
+        
+        setTimeout(() => {
+            document.getElementById('shakeEmoji').textContent = '😐';
+            document.getElementById('tasteScore').textContent = '50%';
+            document.getElementById('tasteFeedback').textContent = 'Unable to analyze - please check backend connection';
+            resultSound.play();
+        }, 2000);
+    }
+}
+
+    // Adding the Cafe Suggestion feature
+    // whole Javascript logic for cafe suggestion feature
+    // Cafe suggestion functions
+function openCafeSuggestion() {
+  clickSound.play();
+  document.getElementById('gameScreen').classList.remove('active');
+  document.getElementById('suggestionScreen').classList.add('active');
+}
+
+function backToGame() {
+  clickSound.play();
+  document.getElementById('suggestionScreen').classList.remove('active');
+  document.getElementById('gameScreen').classList.add('active');
+}
+
+async function generateShake(type) {
+  clickSound.play();
+  
+  // Define preferences for each type
+  const preferences = {
+    fruity: {
+      target_score: 0.8,
+      preferences: { sweetness: 0.8, nutrition: 0.9, acidity: 0.4 },
+      categories: ['fruits', 'syrups'],
+      num_ingredients: 3
+    },
+    veggie: {
+      target_score: 0.7,
+      preferences: { nutrition: 0.95, sweetness: 0.3, creaminess: 0.5 },
+      categories: ['vegetables', 'fruits'],
+      num_ingredients: 3
+    },
+    dessert: {
+      target_score: 0.85,
+      preferences: { sweetness: 0.9, creaminess: 0.8, nutrition: 0.4 },
+      categories: ['fruits', 'cakes', 'syrups'],
+      num_ingredients: 4
+    }
+  };
+
+  try {
+    // Show loading state
+    document.getElementById('suggestionScreen').classList.remove('active');
+    document.getElementById('resultsScreen').classList.add('active');
+    
+    document.getElementById('shakeEmoji').textContent = '👨‍🍳';
+    document.getElementById('tasteScore').textContent = 'Chef is creating...';
+    document.getElementById('tasteFeedback').textContent = 'AI Chef is selecting perfect ingredients for you...';
+    
+    // Call the generator API
+    const suggestion = await shakeAPI.generateShake(preferences[type]);
+    
+    setTimeout(() => {
+      // Auto-select suggested ingredients
+      gameState.selectedIngredients = suggestion.generated_shake.map(value => {
+        // Find ingredient details from our data
+        for (const category in ingredientsData) {
+          const found = ingredientsData[category].find(ing => ing.value === value);
+          if (found) return found;
+        }
+        return { value, name: value, icon: '🥤' }; // Fallback
+      });
+      
+      // Get prediction for the suggested shake
+      const prediction = shakeAPI.predictShake(suggestion.generated_shake);
+      
+      prediction.then(result => {
+        document.getElementById('shakeEmoji').textContent = result.emoji;
+        document.getElementById('tasteScore').textContent = `${Math.round(result.quality_score * 100)}%`;
+        
+        // Custom feedback based on type
+        const typeMessages = {
+          fruity: `🍓 Chef's Fruity Special: ${result.feedback}`,
+          veggie: `🥬 Chef's Wellness Blend: ${result.feedback}`,
+          dessert: `🍰 Chef's Sweet Indulgence: ${result.feedback}`
+        };
+        
+        document.getElementById('tasteFeedback').textContent = typeMessages[type];
+        document.getElementById('shakeRecommendation').textContent = suggestion.reasoning || "Chef's special creation just for you!";
+        
+        generateBubbles();
+        resultSound.play();
+        
+        if (result.quality_score > 0.7 && typeof confetti === 'function') {
+          confetti({
+            particleCount: 150,
+            spread: 70,
+            origin: { y: 0.6 },
+            colors: ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#6c5ce7']
+          });
+        }
+      });
+      
+    }, 2000);
+    
+  } catch (error) {
+    console.error('Generation failed:', error);
+    // Fallback to manual selection
+    backToGame();
+    alert('Chef is busy! Please try manual selection.');
+  }
+}
+
+
+    function tryAgain() {
+      clickSound.play(); // adding the click sound effect --> when trying again to that function  
+      document.getElementById('resultsScreen').classList.remove('active');
+      document.getElementById('gameScreen').classList.add('active');
+      resetGame();
+      clearBubbles(); // Clear bubbles when trying again --> just when its reset bubbles cleared
+    }
+
+    function resetGame() {
+      gameState.selectedIngredients = [];
+      gameState.isExpanded = false;
+      gameState.currentCategory = 'fruits';
+      
+      // Reset UI
+      document.getElementById('ingredientSelector').classList.remove('expand', 'hidden');
+      document.getElementById('cafeSuggestion').classList.remove('hidden');     // show cafe suggestion button again
+      document.getElementById('ingredientsGrid').classList.remove('visible');
+      document.getElementById('ingredientsGrid').innerHTML = '';
+      updateSelectedList();
+      
+      // Reset category buttons
+      document.querySelectorAll('.category-btn').forEach((btn, index) => {
+        btn.classList.toggle('active', index === 0);
+      });
+    }
+
+    // Initialize game when page loads
+    window.addEventListener('load', () => {
+      console.log('Shake Maker initialized!');
+    });
+  </script>
+</body>
+</html>
